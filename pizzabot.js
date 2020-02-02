@@ -9,6 +9,12 @@ var Analyzer = natural.SentimentAnalyzer;
 var stemmer = natural.PorterStemmer;
 var analyzer = new Analyzer("English", stemmer, "afinn");
 
+var fs = require('fs');
+
+
+
+var d = new Date();
+
 var out = "";
 
 var count = 0;
@@ -38,16 +44,37 @@ app.get('/smssent', function (req, res) {
   });
   if (count > 0){
       if (analyzer.getSentiment(message.split(" ")) > 0.60 && analyzer.getSentiment(message.split(" ")) < 0.80){
-          console.log(out + " - customer had a good experience but it could be better.");
+          
+          out += " - customer had a good experience but it could be better.";
+          fs.appendFile('out2.txt', out, (err) => {
+            // throws an error, you could also catch it here
+            if (err) throw err;
+          });
+        
       }
       else if (analyzer.getSentiment(message.split(" ")) > 0.30 && analyzer.getSentiment(message.split(" ")) < 0.60){
-          console.log(out + " - customer did not have a good overall experience, but found parts of the service useful")
+        
+          out += " - customer did not have a good overall experience, but found parts of the service useful\n";
+          fs.appendFile('out2.txt', out, (err) => {
+            // throws an error, you could also catch it here
+            if (err) throw err;
+          });
       }
       else if (analyzer.getSentiment(message.split(" "))>0.8){
-          console.log(out + " - customer had a great experience. Repeat business is likely.")
+        
+          out += " - customer had a great experience. Repeat business is likely.\n";
+          fs.appendFile('out2.txt', out, (err) => {
+            // throws an error, you could also catch it here
+            if (err) throw err;
+          });
       }
       else if (analyzer.getSentiment(message.split(" "))<0.30){
-          console.log(out + " - customer had a bad experience.")
+        
+          out+= " - customer had a bad experience.\n";
+          fs.appendFile('out2.txt', out, (err) => {
+            // throws an error, you could also catch it here
+            if (err) throw err;
+          });
       }
   }
   console.log('Recieved message from ' + number + ' saying \'' + message  + '\'');
@@ -114,7 +141,6 @@ if (response.output.generic) {
               console.error(err.message);
             }
             if (response.output.generic[0].text.indexOf("20 minutes") != -1){
-                var d = new Date();
                 if (d.getMinutes >= 10){
                     out+=number + " has ordered at " + d.getHours() + ":0" + d.getMinutes();
                 }
@@ -133,3 +159,4 @@ app.listen(3000, function () {
   console.log('app listening on port 3000');
   console.log ( ip.address() );
 });
+
